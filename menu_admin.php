@@ -53,8 +53,8 @@ if ($result = $conn->query($sqlTicketsSold)) {
 
 // Requête pour le chiffre d'affaires total (somme des prix des tickets achetés)
 $sqlRevenue = "SELECT SUM(te.Prix) AS total_revenue
-               FROM achat a
-               JOIN ticketevenement te ON a.Id_TicketEvenement = te.Id_TicketEvenement";
+                FROM achat a
+                JOIN ticketevenement te ON a.Id_TicketEvenement = te.Id_TicketEvenement";
 if ($result = $conn->query($sqlRevenue)) {
     $row = $result->fetch_assoc();
     $totalRevenue = $row['total_revenue'] ?? 0; // Assurez-vous que c'est 0 si SUM est null
@@ -63,307 +63,432 @@ if ($result = $conn->query($sqlRevenue)) {
 
 $conn->close();
 ?>
-
 <!DOCTYPE html>
 <html lang="fr">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tableau de Bord Administrateur</title>
+    <title>Tableau de Bord Administrateur - Professionnel</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Removed Font Awesome, replaced with Lucide for consistency -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <style>
+        /* Modernized Color Palette & Design Tokens */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #FF9900 0%, #FF6600 100%); /* Vibrant Orange */
+            --secondary-gradient: linear-gradient(135deg, #4A5568 0%, #718096 100%); /* Dark Gray to Medium Gray */
+            --header-bg: #FFFFFF; /* Pure White */
+            --sidebar-bg: #FFFFFF; /* Pure White */
+            --main-bg: #F8F9FA; /* Light Grayish White */
+            --card-bg: #FFFFFF; /* Pure White */
+            --text-dark: #2D3748; /* Dark Gray */
+            --text-medium: #4A5568; /* Medium Gray */
+            --text-light: #718096; /* Light Gray */
+            --accent-orange: #FF8C00; /* Darker Orange */
+            --accent-dark-orange: #E67E22; /* Burnt Orange */
+            --accent-red: #E53E3E; /* Red for logout */
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 6px 12px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 15px 30px rgba(0, 0, 0, 0.15);
+            --border-radius-lg: 16px;
+            --border-radius-md: 10px;
+            --border-radius-xl: 24px;
+        }
+
         body {
-            font-family: 'Poppins', sans-serif;
-            /* Police plus moderne */
-            background-color: #f0f2f5;
-            /* Fond légèrement plus clair */
+            font-family: 'Inter', sans-serif;
+            background: var(--main-bg);
             margin: 0;
             padding: 0;
-            color: #333;
+            color: var(--text-medium);
             line-height: 1.6;
-            /* Améliore la lisibilité du texte */
+            overflow-x: hidden;
+        }
+
+        /* --- Global Reset & Utilities --- */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--text-dark);
+            margin-top: 0; /* Reset default margin */
+            margin-bottom: 0; /* Reset default margin */
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
         }
 
         /* --- Header --- */
         .header {
-            background-color: #2c3e50;
-            /* Garde la couleur sombre */
-            color: #fff;
-            padding: 18px 30px;
-            /* Augmente le padding */
-            font-size: 1.6em;
-            /* Légèrement plus petit pour l'harmonie */
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            /* Ombre plus prononcée */
+            background: var(--header-bg);
+            padding: 20px 40px;
+            box-shadow: var(--shadow-md);
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: sticky;
-            /* Rendre le header fixe au défilement */
             top: 0;
             z-index: 1000;
-            /* Assure que le header reste au-dessus des autres éléments */
+            border-bottom-left-radius: var(--border-radius-md);
+            border-bottom-right-radius: var(--border-radius-md);
         }
 
         .header span {
-            font-weight: 600;
-            /* Texte de l'en-tête plus gras */
+            font-weight: 700;
+            font-family: 'Montserrat', sans-serif;
+            letter-spacing: 0.5px;
+            font-size: 1.2em; /* Slightly larger */
+            color: var(--text-dark);
         }
 
         .header .logout-btn {
-            background-color: #e74c3c;
+            background: linear-gradient(45deg, #FF6F61 0%, #E04B3F 100%);
             color: white;
-            padding: 10px 20px;
-            /* Augmente le padding du bouton */
-            border-radius: 25px;
-            /* Bordures plus arrondies */
-            text-decoration: none;
-            font-size: 0.9em;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-size: 0.9em; /* Slightly larger */
             transition: all 0.3s ease;
-            /* Transition plus douce */
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            /* Ajoute une ombre au bouton */
+            box-shadow: 0 4px 10px rgba(255, 111, 97, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            border: none; /* Remove default button border */
         }
 
         .header .logout-btn:hover {
-            background-color: #c0392b;
-            transform: translateY(-2px);
-            /* Léger effet de soulèvement au survol */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 6px 15px rgba(255, 111, 97, 0.6);
+            filter: brightness(1.1); /* Subtle brightness increase */
         }
 
-        /* --- Conteneur principal --- */
+        /* --- Main Container --- */
         .container {
             display: flex;
-            min-height: calc(100vh - 76px);
-            /* Ajuste la hauteur min après le nouveau padding du header */
+            min-height: calc(100vh - 80px); /* Adjusted for header */
         }
 
         /* --- Sidebar --- */
         .sidebar {
-            width: 260px;
-            /* Légèrement plus large */
-            background-color: #34495e;
-            padding: 25px 0;
-            /* Padding ajusté */
-            box-shadow: 3px 0 10px rgba(0, 0, 0, 0.1);
-            /* Ombre plus distincte */
-            color: #ecf0f1;
+            width: 280px;
+            background-color: var(--sidebar-bg);
+            padding: 30px 0;
+            box-shadow: var(--shadow-lg); /* Stronger shadow */
+            color: var(--text-medium);
             display: flex;
-            /* Utilisation de flexbox pour l'alignement */
             flex-direction: column;
             position: sticky;
-            /* Rendre la sidebar fixe */
-            top: 76px;
-            /* Commence après le header */
-            height: calc(100vh - 76px);
-            /* Occupe le reste de la hauteur de la fenêtre */
+            top: 80px; /* Starts after the header */
+            height: calc(100vh - 80px);
             overflow-y: auto;
-            /* Permet le défilement si le contenu dépasse */
+            border-right: 1px solid rgba(0, 0, 0, 0.05);
+            border-top-right-radius: var(--border-radius-xl); /* Rounded top-right */
+            border-bottom-right-radius: var(--border-radius-xl); /* Rounded bottom-right */
         }
 
         .sidebar h2 {
             text-align: center;
-            color: #fff;
-            margin-bottom: 35px;
-            /* Marge plus grande */
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            /* Bordure plus subtile */
-            padding-bottom: 20px;
-            font-size: 1.6em;
-            /* Taille de titre plus grande */
-            letter-spacing: 1px;
-            /* Espacement entre les lettres */
+            color: var(--accent-orange);
+            margin-bottom: 40px;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.1); /* Slightly more prominent */
+            padding-bottom: 25px;
+            font-size: 1.1em; /* Larger font size */
+            letter-spacing: 1.5px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            text-transform: uppercase;
         }
 
         .sidebar ul {
             list-style: none;
-            padding: 0 20px;
-            /* Padding latéral pour les éléments de liste */
+            padding: 0 25px;
             flex-grow: 1;
-            /* Permet à la liste de prendre l'espace disponible */
         }
 
         .sidebar ul li {
-            margin-bottom: 8px;
-            /* Espacement réduit entre les éléments */
+            margin-bottom: 12px;
         }
 
         .sidebar ul li a {
             display: flex;
-            /* Utilisation de flexbox pour les icônes (si ajoutées plus tard) */
             align-items: center;
-            gap: 10px;
-            /* Espace entre icône et texte */
-            color: #ecf0f1;
+            gap: 15px;
+            color: var(--text-dark);
             text-decoration: none;
-            padding: 14px 15px;
-            /* Padding ajusté */
-            border-radius: 8px;
-            /* Bordures plus arrondies */
-            transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+            padding: 16px 20px;
+            border-radius: var(--border-radius-md);
+            transition: all 0.3s ease;
             font-weight: 500;
-            /* Texte un peu plus épais */
+            font-size: 0.95em; /* Slightly larger */
+            position: relative;
+            overflow: hidden;
+            z-index: 1; /* Ensure content is above ::before */
+        }
+
+        .sidebar ul li a svg { /* Targeting Lucide SVG directly */
+            font-size: 1.3em;
+            color: var(--accent-orange);
+            transition: color 0.3s ease;
         }
 
         .sidebar ul li a:hover,
         .sidebar ul li a.active {
-            background-color: #2980b9;
-            color: #fff;
-            transform: translateX(5px);
-            /* Léger décalage vers la droite au survol/actif */
+            background-color: rgba(255, 123, 0, 0.15);
+            color: var(--accent-dark-orange);
+            transform: translateX(8px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
+
+        .sidebar ul li a.active {
+            font-weight: 700;
+            background: var(--primary-gradient);
+            box-shadow: 0 8px 25px rgba(255, 123, 0, 0.5); /* Stronger shadow */
+            color: white;
+        }
+
+        .sidebar ul li a.active svg { /* Targeting Lucide SVG directly */
+            color: white;
+        }
+
+        /* "Wave" effect on sidebar links on hover */
+        .sidebar ul li a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1); /* Lighter, more subtle wave */
+            transition: all 0.4s ease-in-out;
+            transform: skewX(-20deg);
+            z-index: -1; /* Behind content */
+        }
+
+        .sidebar ul li a:hover::before {
+            left: 100%;
+        }
+
 
         /* --- Main Content --- */
         .main-content {
             flex-grow: 1;
-            padding: 30px;
-            background-color: #ffffff;
-            /* Fond blanc pur */
-            margin: 20px;
-            border-radius: 10px;
-            /* Bordures plus arrondies */
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-            /* Ombre plus douce et plus étendue */
+            padding: 40px;
+            background-color: var(--card-bg); /* Pure white background */
+            margin: 25px;
+            border-radius: var(--border-radius-xl); /* Larger radius */
+            box-shadow: var(--shadow-lg); /* Stronger shadow */
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Subtle background pattern for main content */
+        .main-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://www.transparenttextures.com/patterns/clean-gray-paper.png');
+            opacity: 0.03; /* Even lighter */
+            z-index: -1;
         }
 
         .section-title {
-            font-size: 2em;
-            /* Taille de titre plus grande */
-            color: #2c3e50;
-            /* Couleur du header pour les titres */
-            margin-bottom: 25px;
-            border-bottom: 2px solid #eee;
-            /* Bordure plus épaisse */
-            padding-bottom: 15px;
-            font-weight: 700;
-            /* Titre plus gras */
+            font-size: 2.2em; /* Larger font size */
+            color: var(--text-dark);
+            margin-bottom: 35px;
+            border-bottom: 4px solid var(--accent-orange); /* Thicker, vibrant border */
+            padding-bottom: 18px;
+            font-weight: 800;
             text-transform: uppercase;
-            /* Met le titre en majuscules */
-            letter-spacing: 0.5px;
+            letter-spacing: 1.5px; /* Increased letter spacing */
+            font-family: 'Montserrat', sans-serif;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.05); /* More subtle shadow */
         }
 
         /* --- Dashboard Cards --- */
         .dashboard-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            /* Cartes légèrement plus grandes */
-            gap: 25px;
-            /* Espacement plus grand entre les cartes */
-            margin-bottom: 40px;
+            /* Force 4 columns on larger screens */
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px; /* Reduced gap between cards */
+            margin-bottom: 50px;
         }
 
         .card {
-            background-color: #ffffff;
-            /* Fond blanc pour les cartes */
-            padding: 25px;
-            /* Padding augmenté */
-            border-radius: 10px;
-            /* Bordures plus arrondies */
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            /* Ombre plus distincte */
+            background: var(--card-bg);
+            padding: 15px; /* Significantly reduced padding */
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-sm); /* Lighter initial shadow */
             text-align: center;
-            border-left: 6px solid;
-            /* Bordure plus épaisse */
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            /* Transitions pour l'interactivité */
+            border-bottom: 8px solid;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1; /* Ensure content is above ::before */
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.08; /* Slightly more visible */
+            filter: grayscale(100%) blur(1px); /* Subtle blur added */
+            z-index: -1;
+            transition: all 0.5s ease;
+            transform: scale(1.05);
         }
 
         .card:hover {
-            transform: translateY(-5px);
-            /* Soulève la carte au survol */
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-            /* Ombre plus intense au survol */
+            transform: translateY(-8px) scale(1.01); /* Slightly less pronounced lift */
+            box-shadow: var(--shadow-md); /* Stronger shadow on hover */
+        }
+
+        .card:hover::before {
+            opacity: 0.15; /* More visible on hover */
+            transform: scale(1);
+            filter: grayscale(80%) blur(0px); /* Less grayscale, no blur on hover */
         }
 
         .card h3 {
-            color: #555;
+            color: var(--text-dark);
             margin-top: 0;
-            font-size: 1.2em;
-            /* Taille de titre de carte plus grande */
-            font-weight: 600;
-            margin-bottom: 15px;
+            font-size: 0.8em; /* Further reduced title size for compactness */
+            font-weight: 700;
+            margin-bottom: 8px; /* Reduced margin */
+            position: relative;
+            z-index: 2;
+            letter-spacing: 0.5px; /* Reduced letter spacing for compactness */
+            text-transform: uppercase;
         }
 
         .card p {
-            font-size: 2.8em;
-            /* Chiffres plus grands */
-            font-weight: bold;
-            color: #2c3e50;
+            font-size: 2.5em; /* Further reduced font size for compactness */
+            font-weight: 800;
+            color: var(--accent-dark-orange);
             margin: 0;
-            /* Supprime la marge par défaut */
+            position: relative;
+            z-index: 2;
+            line-height: 1;
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.08); /* Slightly less strong text shadow */
         }
 
-        /* Couleurs des bordures des cartes - légèrement ajustées */
-        .card.users {
-            border-color: #2ecc71;
+        .card .icon-bg {
+            position: absolute;
+            top: 5px; /* Adjusted position */
+            right: 10px; /* Adjusted position */
+            font-size: 2.5em; /* Reduced icon size */
+            color: rgba(0, 0, 0, 0.04); /* Even lighter, more subtle */
+            z-index: 1;
+            transition: transform 0.3s ease;
         }
 
-        /* Vert plus vif */
-        .card.events {
-            border-color: #f1c40f;
+        .card:hover .icon-bg {
+            transform: rotate(15deg) scale(1.1); /* More rotation and scale */
         }
 
-        /* Jaune plus vif */
-        .card.tickets {
-            border-color: #9b59b6;
+        /* Specific card colors and background images */
+        .card.users { border-color: #3B82F6; } /* Blue */
+        .card.users::before {
+            background-image: url('https://images.unsplash.com/photo-1517486804561-12502ec3b499?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1MDcxMzJ8MHwxfHNlYXJjaHw1fHx1c2VyJTIwcHJvZmlsZSUyMGJhY2tncm91bmR8ZW58MHx8fHwxNzIwOTgwNTQwfDA&ixlib=rb-4.0.3&q=80&w=1080');
         }
 
-        /* Violet conservé */
-        .card.revenue {
-            border-color: #16a085;
+        .card.events { border-color: #A855F7; } /* Purple */
+        .card.events::before {
+            background-image: url('https://images.unsplash.com/photo-1514525253164-ffc749007f7a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1NTA5MzR8MHwxfHNlYXJjaHw3fHxldmVudCUyMGJhY2tncm91bmR8ZW58MHx8fHwxNzIwOTgwNTgwfDA&ixlib=rb-4.0.3&q=80&w=1080');
         }
 
-        /* Vert-bleu plus profond */
+        .card.tickets { border-color: #22C55E; } /* Green */
+        .card.tickets::before {
+            background-image: url('https://images.unsplash.com/photo-1582236371191-23d3856e8976?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1MDcxMzJ8MHwxfHNlYXJjaHwzfHx0aWNrZXRzJTIwYmFja2dyb3VuZHxlbnwwfHx8fDE3MjA5ODA1OTZ8MA&ixlib=rb-4.0.3&q=80&w=1080');
+        }
+
+        .card.revenue { border-color: #F97316; } /* Orange */
+        .card.revenue::before {
+            background-image: url('https://images.unsplash.com/photo-1549925232-a5e1e5e0d4d2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1MDcxMzJ8MHwxfHNlYXJjaHwzfHxyZXZlbnVlJTIwYmFja2dyb3VuZHxlbnwwfHx8fDE3MjA5ODA1ODN8MA&ixlib=rb-4.0.3&q=80&w=1080');
+        }
 
         /* --- Quick Actions --- */
         .quick-actions {
-            margin-top: 30px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            /* Espacement plus grand entre les boutons */
+            margin-top: 40px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Slightly wider buttons */
+            gap: 25px;
         }
 
         .quick-actions a {
-            background-color: #3498db;
+            background: var(--primary-gradient);
             color: white;
-            padding: 14px 25px;
-            /* Padding augmenté pour les boutons */
-            border-radius: 25px;
-            /* Bordures très arrondies */
-            text-decoration: none;
-            font-size: 1em;
-            /* Taille de police légèrement plus grande */
+            padding: 18px 30px; /* More padding */
+            border-radius: 30px;
+            font-size: 1em; /* Larger font size */
             transition: all 0.3s ease;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-            /* Ombre pour les boutons */
-            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(255, 123, 0, 0.4);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-content: center;
+            border: 2px solid transparent;
         }
 
         .quick-actions a:hover {
-            background-color: #2980b9;
-            transform: translateY(-3px);
-            /* Effet de soulèvement plus prononcé */
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+            background: white;
+            color: var(--accent-orange);
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(255, 123, 0, 0.6);
+            border-color: var(--accent-orange);
         }
 
-        /* --- Responsive Design (Ajout) --- */
+        .quick-actions a svg { /* Targeting Lucide SVG directly */
+            font-size: 1.3em; /* Larger icon */
+            color: white;
+            transition: color 0.3s ease;
+        }
+
+        .quick-actions a:hover svg { /* Targeting Lucide SVG directly */
+            color: var(--accent-orange);
+        }
+
+        /* --- Responsive Design --- */
         @media (max-width: 992px) {
             .container {
                 flex-direction: column;
-                /* La sidebar passe au-dessus en colonne */
             }
 
             .sidebar {
                 width: 100%;
-                /* La sidebar prend toute la largeur */
                 height: auto;
-                /* Hauteur automatique */
                 position: static;
-                /* Ne plus être fixe */
                 padding-bottom: 0;
-                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+                border-radius: 0; /* Remove specific border radius for full width */
             }
 
             .sidebar h2 {
@@ -373,7 +498,6 @@ $conn->close();
 
             .sidebar ul {
                 display: flex;
-                /* Les éléments de menu s'alignent horizontalement */
                 flex-wrap: wrap;
                 justify-content: center;
                 padding: 0 10px;
@@ -381,47 +505,58 @@ $conn->close();
 
             .sidebar ul li {
                 margin: 5px 10px;
-                /* Espacement entre les éléments horizontaux */
             }
 
             .sidebar ul li a {
                 padding: 10px 15px;
+                gap: 8px;
+                font-size: 0.9em;
+            }
+
+            .sidebar ul li a.active::before {
+                display: none;
             }
 
             .main-content {
                 margin: 20px 15px;
-                /* Marges ajustées pour les petits écrans */
+                padding: 25px;
+                border-radius: var(--border-radius-lg); /* Smaller radius for mobile */
+            }
+
+            .dashboard-cards {
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                gap: 20px;
+            }
+
+            .card .icon-bg {
+                font-size: 3em;
+            }
+
+            .section-title {
+                font-size: 1.8em; /* Adjusted for smaller screens */
+            }
+        }
+
+        @media (max-width: 768px) { /* Tablet breakpoint */
+            .header {
+                padding: 15px 20px;
+            }
+            .header span {
+                font-size: 1em;
+            }
+            .header .logout-btn {
+                padding: 10px 20px;
+                font-size: 0.8em;
+            }
+
+            .main-content {
+                margin: 15px;
                 padding: 20px;
             }
 
             .dashboard-cards {
-                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-                /* Ajuste la taille des cartes */
+                grid-template-columns: 1fr; /* Stack cards on smaller tablets */
                 gap: 15px;
-            }
-
-            .quick-actions {
-                justify-content: center;
-                /* Centre les boutons d'action rapide */
-            }
-        }
-
-        @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                /* Le header passe en colonne */
-                padding: 15px;
-                font-size: 1.5em;
-            }
-
-            .header span {
-                margin-bottom: 10px;
-                /* Marge entre le titre et le bouton */
-            }
-
-            .section-title {
-                font-size: 1.6em;
-                text-align: center;
             }
 
             .card h3 {
@@ -429,16 +564,31 @@ $conn->close();
             }
 
             .card p {
-                font-size: 2.2em;
+                font-size: 3em;
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr; /* Stack quick actions */
+                gap: 15px;
             }
 
             .quick-actions a {
-                padding: 10px 15px;
+                padding: 15px 20px;
                 font-size: 0.9em;
             }
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 480px) { /* Mobile breakpoint */
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 10px 15px;
+            }
+            .header .logout-btn {
+                margin-top: 10px;
+                width: 100%;
+                justify-content: center;
+            }
             .main-content {
                 margin: 10px;
                 padding: 15px;
@@ -446,82 +596,117 @@ $conn->close();
 
             .dashboard-cards {
                 grid-template-columns: 1fr;
-                /* Une seule colonne sur très petits écrans */
             }
 
             .sidebar ul {
                 flex-direction: column;
-                /* Les éléments de la sidebar reviennent en colonne */
                 align-items: center;
+                padding: 0 5px;
             }
 
             .sidebar ul li {
-                width: 90%;
-                /* Prend plus de place sur la largeur */
+                width: 95%;
                 text-align: center;
                 margin-bottom: 8px;
             }
 
             .sidebar ul li a {
                 justify-content: center;
-                /* Centre le texte des liens */
+                font-size: 0.85em;
+                padding: 12px 15px;
+            }
+
+            .section-title {
+                font-size: 1.5em;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+
+            .card h3 {
+                font-size: 0.9em;
+            }
+
+            .card p {
+                font-size: 2.5em;
+            }
+
+            .quick-actions a {
+                font-size: 0.85em;
+                padding: 12px 15px;
             }
         }
     </style>
 </head>
 
 <body>
-    <div class="header">
+    <header class="header animate_animated animate_fadeInDown">
         <span>Tableau de Bord Administrateur</span>
-        <a href="logout.php" class="logout-btn">Déconnexion</a>
-    </div>
+        <a href="connexion.php" class="logout-btn animate_animated animatepulse animate_infinite">
+            <i data-lucide="log-out" class="w-5 h-5"></i> Déconnexion
+        </a>
+    </header>
 
     <div class="container">
-        <aside class="sidebar">
+        <aside class="sidebar animate_animated animate_fadeInLeft">
             <h2>Navigation Admin</h2>
             <ul>
-                <li><a href="menu_administrateur.php" class="active">Tableau de Bord</a></li>
-                <li><a href="admin_gerer_utilisateurs.php">Gérer les Utilisateurs</a></li>
-                <li><a href="admin_gerer_evenement.php">Gérer les Événements</a></li>
-                <li><a href="admin_gerer_tickets.php">Gérer les Tickets</a></li>
-                <li><a href="admin_gerer_categories.php">Gérer les Catégories</a></li>
-                <li><a href="admin_rapporst.php">Rapports et Stats</a></li>
-                <li><a href="admin_parametres_site.php">Paramètres du Site</a></li>
+                <li><a href="menu_administrateur.php" class="active"><i data-lucide="layout-dashboard" class="w-5 h-5"></i> Tableau de
+                        Bord</a></li>
+                <li><a href="gerer_utilisateur.php"><i data-lucide="users" class="w-5 h-5"></i> Gérer les Utilisateurs</a></li>
+                <li><a href="admin_gerer_evenement.php"><i data-lucide="calendar" class="w-5 h-5"></i> Gérer les Événements</a>
+                </li>
+                <li><a href="gerer_ticket_admin.php"><i data-lucide="ticket" class="w-5 h-5"></i> Gérer les Tickets</a></li>
+                <li><a href="gerer_categorie_evenement.php"><i data-lucide="tags" class="w-5 h-5"></i> Gérer les Catégories</a></li>
+                <li><a href="rapport_statistique.php"><i data-lucide="bar-chart-3" class="w-5 h-5"></i> Rapports et Stats</a></li>
+                <li><a href="admin_parametres_site.php"><i data-lucide="settings" class="w-5 h-5"></i> Paramètres du Site</a></li>
             </ul>
         </aside>
 
-        <main class="main-content">
-            <h1 class="section-title">Aperçu du Système</h1>
+        <main class="main-content animate_animated animate_fadeInRight">
+            <h1 class="section-title animate_animated animate_fadeIn">Aperçu du Système</h1>
 
             <div class="dashboard-cards">
-                <div class="card users">
+                <div class="card users animate_animated animate_zoomIn">
+                    <i data-lucide="users" class="icon-bg"></i>
                     <h3>Total Utilisateurs</h3>
                     <p><?php echo $totalUsers; ?></p>
                 </div>
-                <div class="card events">
+                <div class="card events animate_animated animatezoomIn animate_delay-0-1s">
+                    <i data-lucide="calendar" class="icon-bg"></i>
                     <h3>Total Événements</h3>
                     <p><?php echo $totalEvents; ?></p>
                 </div>
-                <div class="card tickets">
+                <div class="card tickets animate_animated animatezoomIn animate_delay-0-2s">
+                    <i data-lucide="ticket" class="icon-bg"></i>
                     <h3>Tickets Vendus</h3>
                     <p><?php echo $totalTicketsSold; ?></p>
                 </div>
-                <div class="card revenue">
+                <div class="card revenue animate_animated animatezoomIn animate_delay-0-3s">
+                    <i data-lucide="dollar-sign" class="icon-bg"></i>
                     <h3>Chiffre d'Affaires Total</h3>
                     <p><?php echo number_format($totalRevenue, 2, ',', ' '); ?> CFA</p>
                 </div>
             </div>
 
-            <h1 class="section-title">Actions Rapides</h1>
+            <h1 class="section-title animate_animated animate_fadeIn">Actions Rapides</h1>
             <div class="quick-actions">
-                <a href="admin_ajouter_utilisateur.php">Ajouter un nouvel utilisateur</a>
-                <a href="admin_creer_evenement.php">Créer un événement (Admin)</a>
-                <a href="admin_modifier_motdepasse.php">Modifier mon mot de passe</a>
-                <a href="admin_param_email.php">Paramètres Email</a>
+                <a href="admin_modifier_motdepasse.php" class="animate_animated animatefadeInUp animate_delay-0-2s">
+                    <i data-lucide="key" class="w-5 h-5"></i> Modifier mon mot de passe
+                </a>
+                <a href="messagerie.php" class="animate_animated animatefadeInUp animate_delay-0-3s">
+                    <i data-lucide="mail" class="w-5 h-5"></i> Paramètres Email
+                </a>
             </div>
 
         </main>
     </div>
+
+    <script>
+        // Initialize Lucide icons after the DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+        });
+    </script>
 </body>
 
 </html>

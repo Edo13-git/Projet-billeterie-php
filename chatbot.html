@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 Chatbot Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .chatbot-container {
+            width: 400px;
+            height: 600px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .chat-header {
+            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .bot-avatar {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .status-indicator {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            width: 12px;
+            height: 12px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 255, 136, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            animation: messageSlide 0.3s ease-out;
+        }
+
+        @keyframes messageSlide {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .user-message {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+
+        .bot-message {
+            background: #f1f3f4;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+            position: relative;
+        }
+
+        .bot-message::before {
+            content: '🤖';
+            position: absolute;
+            left: -35px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+        }
+
+        .typing-indicator {
+            display: none;
+            align-self: flex-start;
+            padding: 16px;
+            background: #f1f3f4;
+            border-radius: 18px;
+            border-bottom-left-radius: 5px;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: #999;
+            border-radius: 50%;
+            animation: typingDots 1.4s infinite;
+        }
+
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typingDots {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-15px); }
+        }
+
+        .chat-input {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 25px;
+            outline: none;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .send-btn {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .quick-replies {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .quick-reply {
+            padding: 8px 12px;
+            background: rgba(79, 172, 254, 0.1);
+            border: 1px solid #4facfe;
+            border-radius: 15px;
+            color: #4facfe;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .quick-reply:hover {
+            background: #4facfe;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Scrollbar styling */
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        @media (max-width: 480px) {
+            .chatbot-container {
+                width: 95%;
+                height: 90vh;
+                margin: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chatbot-container">
+        <div class="chat-header">
+            <div class="status-indicator"></div>
+            <div class="bot-avatar">🤖</div>
+            <h3>Assistant IA</h3>
+            <p style="font-size: 12px; opacity: 0.8;">En ligne • Prêt à vous aider</p>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot-message">
+                Salut ! 👋 Je suis votre assistant virtuel. Comment puis-je vous aider aujourd'hui ?
+                <div class="quick-replies">
+                    <div class="quick-reply" onclick="sendQuickReply('Que peux-tu faire ?')">Que peux-tu faire ?</div>
+                    <div class="quick-reply" onclick="sendQuickReply('Aide-moi')">Aide-moi</div>
+                    <div class="quick-reply" onclick="sendQuickReply('Blague')">Raconte une blague</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="typing-dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+
+        <div class="chat-input">
+            <input type="text" class="input-field" id="messageInput" placeholder="Tapez votre message..." maxlength="500">
+            <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                ➤
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const typingIndicator = document.getElementById('typingIndicator');
+
+        // Base de connaissances du chatbot
+        const responses = {
+            // Salutations
+            'bonjour': ['Bonjour ! 😊 Comment allez-vous aujourd\'hui ?', 'Salut ! Ravi de vous voir ! Comment puis-je vous aider ?'],
+            'salut': ['Salut ! 👋 Que puis-je faire pour vous ?', 'Hello ! Comment ça va ?'],
+            'bonsoir': ['Bonsoir ! 🌙 J\'espère que vous passez une belle soirée !'],
+            
+            // Questions sur le bot
+            'qui es-tu': ['Je suis votre assistant virtuel ! 🤖 Je suis là pour répondre à vos questions et vous aider.'],
+            'que peux-tu faire': ['Je peux vous aider avec :\n• Répondre à vos questions\n• Donner des conseils\n• Raconter des blagues\n• Discuter de divers sujets\n• Et bien plus encore ! 😊'],
+            'comment ça va': ['Ça va très bien, merci ! 😊 Et vous ?', 'Super bien ! Prêt à vous aider ! Comment vous sentez-vous ?'],
+            
+            // Aide
+            'aide': ['Bien sûr ! Je suis là pour vous aider. Que souhaitez-vous savoir ?'],
+            'aide-moi': ['Je suis là pour vous aider ! Dites-moi ce dont vous avez besoin. 🤝'],
+            
+            // Blagues
+            'blague': [
+                'Pourquoi les plongeurs plongent-ils toujours en arrière ? 🤿\nParce que sinon, ils tombent dans le bateau ! 😄',
+                'Que dit un escargot quand il croise une limace ? 🐌\n"Regarde, un nudiste !" 😂',
+                'Qu\'est-ce qui est jaune et qui attend ? 🍌\nJonathan ! 😄'
+            ],
+            
+            // Au revoir
+            'au revoir': ['Au revoir ! 👋 J\'ai été ravi de discuter avec vous !', 'À bientôt ! Passez une excellente journée ! 🌟'],
+            'bye': ['Bye ! 👋 À la prochaine !'],
+            'à bientôt': ['À bientôt ! J\'espère vous revoir soon ! 😊'],
+            
+            // Remerciements
+            'merci': ['De rien ! 😊 C\'était un plaisir de vous aider !', 'Je vous en prie ! N\'hésitez pas si vous avez d\'autres questions !'],
+            
+            // Questions générales
+            'météo': ['Je ne peux pas consulter la météo en temps réel, mais je vous suggère de consulter un site météo fiable ! ☀️'],
+            'heure': [`Il est actuellement ${new Date().toLocaleTimeString('fr-FR')} ! ⏰`],
+            'date': [`Nous sommes le ${new Date().toLocaleDateString('fr-FR')} ! 📅`],
+            
+            // Émotions
+            'je suis triste': ['Je suis désolé d\'entendre ça. 😔 Voulez-vous en parler ? Parfois ça aide de partager.'],
+            'je suis content': ['C\'est fantastique ! 😄 Je suis ravi de voir que vous êtes de bonne humeur !'],
+            'je m\'ennuie': ['Oh ! Que diriez-vous d\'une petite devinette ou d\'une blague pour égayer votre journée ? 🎯'],
+            
+            // Réponses par défaut
+            'default': [
+                'C\'est intéressant ! Pouvez-vous m\'en dire plus ? 🤔',
+                'Je vois... Dites-moi en plus à ce sujet ! 💭',
+                'Hmm, je ne suis pas sûr de bien comprendre. Pouvez-vous reformuler ? 🤷‍♂️',
+                'C\'est une question intéressante ! Malheureusement, je n\'ai pas d\'information spécifique là-dessus. 😅'
+            ]
+        };
+
+        // Fonction pour normaliser le texte
+        function normalizeText(text) {
+            return text.toLowerCase()
+                      .trim()
+                      .replace(/[.,!?;]/g, '')
+                      .replace(/\s+/g, ' ');
+        }
+
+        // Fonction pour trouver une réponse
+        function findResponse(message) {
+            const normalized = normalizeText(message);
+            
+            // Recherche exacte
+            for (let key in responses) {
+                if (key === 'default') continue;
+                if (normalized.includes(key)) {
+                    const responseArray = responses[key];
+                    return responseArray[Math.floor(Math.random() * responseArray.length)];
+                }
+            }
+            
+            // Réponse par défaut
+            const defaultResponses = responses.default;
+            return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
+        }
+
+        // Fonction pour ajouter un message
+        function addMessage(message, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            messageDiv.textContent = message;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Fonction pour simuler la frappe
+        function showTyping() {
+            typingIndicator.style.display = 'block';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideTyping() {
+            typingIndicator.style.display = 'none';
+        }
+
+        // Fonction pour envoyer un message
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            // Ajouter le message de l'utilisateur
+            addMessage(message, true);
+            messageInput.value = '';
+
+            // Désactiver le bouton et montrer l'indicateur de frappe
+            sendBtn.disabled = true;
+            showTyping();
+
+            // Simuler un délai de réponse
+            setTimeout(() => {
+                hideTyping();
+                const response = findResponse(message);
+                addMessage(response);
+                sendBtn.disabled = false;
+                
+                // Ajouter des réponses rapides contextuelles
+                addContextualQuickReplies(message);
+            }, 1000 + Math.random() * 2000);
+        }
+
+        // Fonction pour les réponses rapides
+        function sendQuickReply(message) {
+            messageInput.value = message;
+            sendMessage();
+        }
+
+        // Fonction pour ajouter des réponses rapides contextuelles
+        function addContextualQuickReplies(lastMessage) {
+            const normalized = normalizeText(lastMessage);
+            let quickReplies = [];
+
+            if (normalized.includes('blague')) {
+                quickReplies = ['Encore une !', 'Merci !', 'C\'était drôle 😄'];
+            } else if (normalized.includes('aide')) {
+                quickReplies = ['Parfait !', 'Et après ?', 'Autre chose ?'];
+            } else if (normalized.includes('triste')) {
+                quickReplies = ['Ça va mieux', 'Raconte une blague', 'Merci'];
+            }
+
+            if (quickReplies.length > 0) {
+                setTimeout(() => {
+                    const lastBotMessage = chatMessages.lastElementChild;
+                    if (lastBotMessage && lastBotMessage.classList.contains('bot-message')) {
+                        const quickRepliesDiv = document.createElement('div');
+                        quickRepliesDiv.className = 'quick-replies';
+                        
+                        quickReplies.forEach(reply => {
+                            const btn = document.createElement('div');
+                            btn.className = 'quick-reply';
+                            btn.textContent = reply;
+                            btn.onclick = () => sendQuickReply(reply);
+                            quickRepliesDiv.appendChild(btn);
+                        });
+                        
+                        lastBotMessage.appendChild(quickRepliesDiv);
+                    }
+                }, 500);
+            }
+        }
+
+        // Gestionnaire d'événements
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !sendBtn.disabled) {
+                sendMessage();
+            }
+        });
+
+        // Auto-focus sur le champ de saisie
+        messageInput.focus();
+
+        // Ajouter un message de bienvenue après un court délai
+        setTimeout(() => {
+            addMessage('N\'hésitez pas à me poser des questions ! Je peux parler de nombreux sujets. 😊');
+        }, 2000);
+    </script>
+</body>
+</html>

@@ -27,7 +27,7 @@ $conn->set_charset("utf8mb4");
 
 // Vérifie si l'utilisateur est connecté
 // Utilisez $_SESSION['Id_Utilisateur'] comme vous le définissez dans connexion.php
-if (!isset($_SESSION['Id_Utilisateur']) || empty($_SESSION['Id_Utilisateur'])) {
+if (!isset($_SESSION['Id_Utilisateur']) || empty($user_id = $_SESSION['utilisateur']['id'])) {
     header('Location: connexion.php'); // Rediriger vers la page de connexion
     exit();
 }

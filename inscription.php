@@ -97,18 +97,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inscription Client</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script> <!-- Added Lucide for icons -->
     <style>
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #f0f2f5;
             margin: 0;
-            padding: 20px;
+            padding: 10px;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             color: #333;
-            background-image: url('images/signup-background.jpg'); /* Chemin de votre image */
+            background-image: url('https://placehold.co/1920x1080/E0F2FE/3B82F6?text=Background');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -129,101 +130,137 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         .signup-container {
             background-color: rgba(255, 255, 255, 0.95);
-            padding: 40px;
+            padding: 20px;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             width: 100%;
-            max-width: 550px;
+            max-width: 380px;
             box-sizing: border-box;
             position: relative;
             z-index: 1;
             backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 255, 255, 0.4);
             text-align: center;
-            /* Ajout pour permettre le défilement si le contenu dépasse la hauteur */
-            max-height: 90vh; /* Limite la hauteur du conteneur */
-            overflow-y: auto; /* Ajoute une barre de défilement verticale si nécessaire */
         }
-        /* Style pour la scrollbar si elle apparaît */
-        .signup-container::-webkit-scrollbar {
-            width: 8px;
-        }
-        .signup-container::-webkit-scrollbar-thumb {
-            background-color: #007bff;
-            border-radius: 4px;
-        }
-        .signup-container::-webkit-scrollbar-track {
-            background-color: rgba(0,0,0,0.1);
-        }
-
 
         h2 {
             text-align: center;
             color: #2c3e50;
-            margin-bottom: 30px;
-            font-size: 2.5em;
+            margin-bottom: 20px;
+            font-size: 1.8em;
             font-weight: 700;
             letter-spacing: 1px;
             border-bottom: 2px solid #e0e5e9;
-            padding-bottom: 15px;
+            padding-bottom: 10px;
         }
 
         .form-group {
-            margin-bottom: 18px;
+            margin-bottom: 12px;
             text-align: left;
         }
 
         label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 5px;
             font-weight: 600;
             color: #555;
-            font-size: 1.05em;
+            font-size: 0.95em;
         }
 
         input[type="text"],
         input[type="date"],
         input[type="tel"],
         input[type="email"],
-        input[type="password"],
-        input[type="file"] { /* Style pour l'input type="file" */
-            width: calc(100% - 24px);
-            padding: 12px;
+        input[type="password"] {
+            width: calc(100% - 16px);
+            padding: 8px;
             border: 1px solid #c9d2da;
             border-radius: 8px;
-            font-size: 1em;
+            font-size: 0.9em;
             box-sizing: border-box;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
-            background-color: #fcfcfc; /* Légèrement grisé */
-        }
-
-        input[type="file"] {
-            padding: 10px; /* Un peu moins de padding pour l'input file */
+            background-color: #fcfcfc;
         }
 
         input[type="text"]:focus,
         input[type="date"]:focus,
         input[type="tel"]:focus,
         input[type="email"]:focus,
-        input[type="password"]:focus,
-        input[type="file"]:focus {
+        input[type="password"]:focus {
             border-color: #007bff;
             box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
             outline: none;
         }
 
+        /* Profile image upload styles */
+        .profile-image-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px; /* Adjusted margin */
+        }
+
+        .profile-image-circle {
+            width: 90px; /* Smaller circle */
+            height: 90px; /* Smaller circle */
+            border-radius: 50%;
+            background-color: #e0e5e9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            overflow: hidden;
+            border: 3px solid #007bff; /* Blue border */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .profile-image-circle:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-color: #0056b3;
+        }
+
+        .profile-image-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none; /* Hidden by default */
+        }
+
+        .profile-image-circle .icon-plus {
+            color: #007bff;
+            font-size: 2.5em; /* Adjusted icon size */
+            transition: color 0.3s ease;
+        }
+
+        .profile-image-circle:hover .icon-plus {
+            color: #0056b3;
+        }
+
+        .profile-image-upload p {
+            margin-top: 10px;
+            font-size: 0.85em; /* Smaller text */
+            color: #777;
+        }
+
+        .hidden-file-input {
+            display: none;
+        }
+
         button[type="submit"] {
             width: 100%;
-            padding: 15px;
+            padding: 10px;
             background-color: #28a745;
             color: white;
             border: none;
             border-radius: 8px;
-            font-size: 1.25em;
+            font-size: 1em;
             font-weight: 600;
             cursor: pointer;
             transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-            margin-top: 30px;
+            margin-top: 20px;
             box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
         }
 
@@ -234,10 +271,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .message {
-            margin-top: 25px;
-            padding: 15px;
+            margin-top: 15px;
+            padding: 10px;
             border-radius: 8px;
-            font-size: 1.05em;
+            font-size: 0.9em;
             font-weight: 500;
             text-align: center;
         }
@@ -256,8 +293,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         .back-to-login {
             display: block;
-            margin-top: 25px;
-            font-size: 1em;
+            margin-top: 15px;
+            font-size: 0.9em;
             color: #007bff;
             text-decoration: none;
             transition: color 0.3s ease;
@@ -271,16 +308,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         /* Media Queries pour le Responsive Design */
         @media (max-width: 600px) {
             .signup-container {
-                padding: 30px 20px;
+                padding: 20px 10px;
                 border-radius: 8px;
-                max-height: 95vh; /* Ajuster pour petits écrans */
+                max-width: 95%;
             }
             h2 {
-                font-size: 2em;
+                font-size: 1.6em;
+                margin-bottom: 15px;
+            }
+            label {
+                font-size: 0.85em;
             }
             input, button {
-                padding: 10px;
-                font-size: 0.95em;
+                padding: 6px;
+                font-size: 0.85em;
+            }
+            .message {
+                font-size: 0.85em;
+                padding: 8px;
+            }
+            .back-to-login {
+                font-size: 0.85em;
+            }
+            .profile-image-circle {
+                width: 80px; /* Even smaller on mobile */
+                height: 80px;
+            }
+            .profile-image-circle .icon-plus {
+                font-size: 2em;
+            }
+            .profile-image-upload p {
+                font-size: 0.8em;
             }
         }
     </style>
@@ -296,29 +354,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form method="POST" action="" enctype="multipart/form-data">
+            <!-- Profile Image Upload Section -->
+            <div class="profile-image-upload">
+                <div class="profile-image-circle" id="profileImageCircle">
+                    <img id="profileImagePreview" src="#" alt="Prévisualisation de la photo de profil">
+                    <i data-lucide="plus" class="icon-plus"></i>
+                </div>
+                <p>Cliquez pour ajouter une photo de profil</p>
+                <input type="file" id="photo" name="photo" accept="image/*" class="hidden-file-input">
+            </div>
+
             <div class="form-group">
                 <label for="nom">Nom :</label>
-                <input type="text" id="nom" name="nom" required>
+                <input type="text" id="nom" name="nom" required value="<?= htmlspecialchars($_POST['nom'] ?? ''); ?>">
             </div>
 
             <div class="form-group">
                 <label for="prenom">Prénom :</label>
-                <input type="text" id="prenom" name="prenom" required>
+                <input type="text" id="prenom" name="prenom" required value="<?= htmlspecialchars($_POST['prenom'] ?? ''); ?>">
             </div>
 
             <div class="form-group">
                 <label for="date_naissance">Date de naissance :</label>
-                <input type="date" id="date_naissance" name="date_naissance" required>
+                <input type="date" id="date_naissance" name="date_naissance" required value="<?= htmlspecialchars($_POST['date_naissance'] ?? ''); ?>">
             </div>
 
             <div class="form-group">
                 <label for="telephone">Téléphone :</label>
-                <input type="tel" id="telephone" name="telephone" required>
+                <input type="tel" id="telephone" name="telephone" required value="<?= htmlspecialchars($_POST['telephone'] ?? ''); ?>">
             </div>
 
             <div class="form-group">
                 <label for="email">Email :</label>
-                <input type="email" id="email" name="email" required>
+                <input type="email" id="email" name="email" required value="<?= htmlspecialchars($_POST['email'] ?? ''); ?>">
             </div>
 
             <div class="form-group">
@@ -331,15 +399,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input type="password" id="confirmer_mot_de_passe" name="confirmer_mot_de_passe" required>
             </div>
 
-            <div class="form-group">
-                <label for="photo">Photo de profil :</label>
-                <input type="file" id="photo" name="photo" accept="image/*">
-            </div>
-
             <button type="submit">S'inscrire</button>
         </form>
 
         <a href="connexion.php" class="back-to-login">Retour à la connexion</a>
     </div>
+
+    <script>
+        // Initialize Lucide icons
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+
+            const profileImageCircle = document.getElementById('profileImageCircle');
+            const profileImageInput = document.getElementById('photo');
+            const profileImagePreview = document.getElementById('profileImagePreview');
+            const iconPlus = profileImageCircle.querySelector('.icon-plus');
+
+            // Trigger file input click when circle is clicked
+            profileImageCircle.addEventListener('click', () => {
+                profileImageInput.click();
+            });
+
+            // Display selected image preview
+            profileImageInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        profileImagePreview.src = e.target.result;
+                        profileImagePreview.style.display = 'block'; // Show the image
+                        iconPlus.style.display = 'none'; // Hide the plus icon
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    profileImagePreview.src = '#';
+                    profileImagePreview.style.display = 'none'; // Hide the image
+                    iconPlus.style.display = 'block'; // Show the plus icon
+                }
+            });
+        });
+    </script>
 </body>
 </html>
